@@ -2,7 +2,7 @@
 
 This repository provides the source code for the numerical simulations in the paper **"Infinite-Width Limit of a Single Attention Layer: Analysis via Tensor Programs"**. Please refer to the paper for a detailed explanation of the experiments and results.
 
-**Paper reference:** (TBU)
+**Paper reference:** Mana Sakai, Ryo Karakida, and Masaaki Imaizumi. (2025). Infinite-Width Limit of a Single Attention Layer: Analysis via Tensor Programs. [arXiv:2506.00846](https://arxiv.org/abs/2506.00846).
 
 ## Implementation
 
