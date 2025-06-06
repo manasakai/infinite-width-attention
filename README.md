@@ -37,7 +37,7 @@ All experiments can be executed via the `run.py` script. The generated data is s
 
 ## Requirements
 
-- **Python versions:** Tested on Python 3.13.0 (macOS 15 Sequoia).
+- **Python versions:** Tested on Python 3.13.0 (macOS 15 Sequoia) and Python 3.13.3 (Windows 11).
 - **Required libraries:** Check the `requirements.txt` file for the list of dependencies.
 
 ## License
