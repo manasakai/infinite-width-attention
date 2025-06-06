@@ -54,6 +54,7 @@ def single_run(args):
     n = params['n']
     s = params['s']
     H = params['H']
+    n_H = params['n_H']
     C = params['C']
     seed_int = task_specific_seed.generate_state(1)[0]
     np.random.seed(seed_int)
