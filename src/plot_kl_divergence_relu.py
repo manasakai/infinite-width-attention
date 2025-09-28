@@ -75,6 +75,4 @@ def plot_kl(csv_file, param_name, output_basename):
     os.remove(svg_file)
 
 if __name__ == '__main__':
-    plot_kl('data/kl_vary_n.csv', 'n', 'figures/kl_vary_n')
-    plot_kl('data/kl_vary_H.csv', 'H', 'figures/kl_vary_H')
-    plot_kl('data/kl_vary_H_inf_head.csv', 'H', 'figures/kl_vary_H_inf_head')
+    plot_kl('data/kl_vary_n_relu.csv', 'n', 'figures/kl_vary_n_relu')

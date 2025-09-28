@@ -4,7 +4,7 @@
 import os
 import numpy as np
 import pandas as pd
-from scipy.stats import gaussian_kde
+from scipy.stats import gaussian_kde, norm
 import plotly.graph_objects as go
 import plotly.express as px
 from svglib.svglib import svg2rlg
@@ -30,39 +30,43 @@ grid = dict(
     zeroline=True,
     zerolinecolor='lightgray'
 )
-legend = dict(
-    x=0.67,
+legend_n = dict(
+    x=0.75,
     y=0.98
 )
-xmin = -3
-xmax = 3
+legend_H = dict(
+    x=0.65,
+    y=0.98
+)
+xmin_n = -3
+xmax_n = 3
+xmin_H = -3
+xmax_H = 3
 xsize = 1000
 
-def plot_lowrank(csv_file: str, output_basename: str):
+def plot_vary_n(csv_file: str, output_basename: str):
     df = pd.read_csv(csv_file)
-    H_vals = sorted(df['param'].unique()) # list of H values
+    n_vals = sorted(df['param'].unique()) # list of n values
 
     # gradient from blue -> purple -> red
-    grad = px.colors.sample_colorscale([[0.0, '#0000FF'], [0.5, '#800080'], [1.0, '#FF0000']], len(H_vals))
+    grad = px.colors.sample_colorscale([[0.0, '#0000FF'], [0.5, '#800080'], [1.0, '#FF0000']], len(n_vals))
 
     # range for PDF curve
-    xs = np.linspace(xmin, xmax, xsize)
+    xs = np.linspace(xmin_n, xmax_n, xsize)
 
     # Create figure
     fig = go.Figure()
 
-    for idx, H_val in enumerate(H_vals):
-        sub = df[df['param'] == H_val]
-
-        # finite width KDEs
-        arr = df[df['param'] == H_val]['y_emp'].values
+    # finite width KDEs
+    for idx, n_val in enumerate(n_vals):
+        arr = df[df['param'] == n_val]['y_emp'].values
         kde_emp = gaussian_kde(arr)
         fig.add_trace(
             go.Scatter(
                 x=xs,
                 y=kde_emp(xs),
                 mode='lines',
-                name=f'n={H_val*64}, H={H_val}',
+                name=f'n={n_val}',
                 line=dict(
                     color=grad[idx],
                     dash='dot',
@@ -72,22 +76,22 @@ def plot_lowrank(csv_file: str, output_basename: str):
             )
         )
 
-        # infinite width KDE
-        kde_theo = gaussian_kde(sub['y_theo'].values)
-        fig.add_trace(
-            go.Scatter(
-                x=xs,
-                y=kde_theo(xs),
-                mode='lines',
-                name=f'∞-width, H={H_val}',
-                line=dict(
-                    color=grad[idx],
-                    dash='solid',
-                    width=1.5
-                ),
+    # infinite width KDE
+    kde_theo = gaussian_kde(df['y_theo'].values)
+    fig.add_trace(
+        go.Scatter(
+            x=xs,
+            y=kde_theo(xs),
+            mode='lines',
+            name='∞-width',
+            line=dict(
+                color='black',
+                dash='solid',
+                width=1.5
+            ),
             legendrank=2
-            )
         )
+    )
 
     fig.update_layout(
         font=font,
@@ -97,7 +101,7 @@ def plot_lowrank(csv_file: str, output_basename: str):
         plot_bgcolor='white', paper_bgcolor='white',
         xaxis=grid,
         yaxis=grid,
-        legend=legend
+        legend=legend_n
     )
 
     svg_file = f'{output_basename}.svg'
@@ -108,4 +112,5 @@ def plot_lowrank(csv_file: str, output_basename: str):
     os.remove(svg_file)
 
 if __name__ == '__main__':
-    plot_lowrank('data/data_lowrank_0.csv', 'figures/lowrank')
+    np.random.seed(0)
+    plot_vary_n('data/data_vary_n_relu_0.csv', 'figures/vary_n_relu')

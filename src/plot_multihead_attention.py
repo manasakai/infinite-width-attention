@@ -4,11 +4,15 @@
 import os
 import numpy as np
 import pandas as pd
-from scipy.stats import gaussian_kde
+from scipy.stats import gaussian_kde, norm
 import plotly.graph_objects as go
 import plotly.express as px
 from svglib.svglib import svg2rlg
 from reportlab.graphics import renderPDF
+
+# setting for experiments
+s = 4
+num_runs = 50000
 
 # plot settings
 width = 600
@@ -35,16 +39,30 @@ legend_n = dict(
     y=0.98
 )
 legend_H = dict(
-    x=0.6,
+    x=0.65,
     y=0.98
 )
-xmin_n = -4
-xmax_n = 4
-xmin_H = -20
-xmax_H = 20
-xsize = 200
+xmin_n = -3
+xmax_n = 3
+xmin_H = -3
+xmax_H = 3
+xsize = 1000
 
-def plot_vary_n(csv_file: str, output_basename: str):
+# Softmax function
+def softmax(x, axis=-1):
+    e_x = np.exp(x)
+    return e_x / np.sum(e_x, axis=axis, keepdims=True)
+
+# Monte Carlo estimate of E[(Z^y^1)^2]=sE[Softmax_1(p)^2] where p ~ N(0,I_s)
+def compute_Zy_squared_expectation(s, num_runs):
+    p_samples = np.random.randn(num_runs, s)
+    probs = softmax(p_samples, axis=1)
+    probs_squared = probs[:, 0] ** 2
+    mean_probs_squared = np.mean(probs_squared)
+    variance = s * mean_probs_squared
+    return variance
+
+def plot_vary_n(csv_file: str, output_basename: str, variance: float):
     df = pd.read_csv(csv_file)
     n_vals = sorted(df['param'].unique()) # list of n values
 
@@ -69,7 +87,8 @@ def plot_vary_n(csv_file: str, output_basename: str):
                 name=f'n={n_val}',
                 line=dict(
                     color=grad[idx],
-                    dash='dot'
+                    dash='dot',
+                    width=1.5
                 ),
                 legendrank=1
             )
@@ -85,7 +104,8 @@ def plot_vary_n(csv_file: str, output_basename: str):
             name='∞-width',
             line=dict(
                 color='black',
-                dash='solid'
+                dash='solid',
+                width=1.5
             ),
             legendrank=2
         )
@@ -109,12 +129,12 @@ def plot_vary_n(csv_file: str, output_basename: str):
     renderPDF.drawToFile(drawing, pdf_file)
     os.remove(svg_file)
 
-def plot_vary_H(csv_file: str, output_basename: str):
+def plot_vary_H(csv_file: str, output_basename: str, variance: float):
     df = pd.read_csv(csv_file)
     H_vals = sorted(df['param'].unique()) # list of H values
 
     # colors
-    grad = ['mediumpurple', 'indigo']
+    grad = ['blue', 'red']
 
     # range for PDF curve
     xs = np.linspace(xmin_H, xmax_H, xsize)
@@ -125,14 +145,20 @@ def plot_vary_H(csv_file: str, output_basename: str):
     for idx, H_val in enumerate(H_vals):
         sub = df[df['param'] == H_val]
 
-        # finite width histogram
+        # finite width KDEs
+        arr = df[df['param'] == H_val]['y_emp'].values
+        kde_emp = gaussian_kde(arr)
         fig.add_trace(
-            go.Histogram(
-                x=sub['y_emp'].values,
-                histnorm='probability density',
+            go.Scatter(
+                x=xs,
+                y=kde_emp(xs),
+                mode='lines',
                 name=f'n=256, H={H_val}',
-                marker_color=grad[idx],
-                opacity=0.5,
+                line=dict(
+                    color=grad[idx],
+                    dash='dot',
+                    width=1.5
+                ),
                 legendrank=1
             )
         )
@@ -147,11 +173,29 @@ def plot_vary_H(csv_file: str, output_basename: str):
                 name=f'∞-width, H={H_val}',
                 line=dict(
                     color=grad[idx],
-                    dash='solid'
+                    dash='solid',
+                    width=1.5
                 ),
                 legendrank=2
             )
         )
+
+    # infinite width and head KDE
+    pdf_inf_head= norm.pdf(xs, loc=0, scale=np.sqrt(variance))
+    fig.add_trace(
+        go.Scatter(
+            x=xs,
+            y=pdf_inf_head,
+            mode='lines',
+            name='∞-width ,∞-head',
+            line=dict(
+                color='black',
+                dash='solid',
+                width=1.5
+            ),
+            legendrank=3
+        )
+    )
 
     fig.update_layout(
         font=font,
@@ -173,5 +217,7 @@ def plot_vary_H(csv_file: str, output_basename: str):
     os.remove(svg_file)
 
 if __name__ == '__main__':
-    plot_vary_n('data/data_vary_n_0.csv', 'figures/vary_n')
-    plot_vary_H('data/data_vary_H_0.csv', 'figures/vary_H')
+    np.random.seed(0)
+    variance = compute_Zy_squared_expectation(s, num_runs)
+    plot_vary_n('data/data_vary_n_0.csv', 'figures/vary_n', variance)
+    plot_vary_H('data/data_vary_H_0.csv', 'figures/vary_H', variance)

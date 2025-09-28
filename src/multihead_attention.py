@@ -72,7 +72,8 @@ def single_run(args):
         tV = V @ Wo
         G = Q.dot(K.T) / np.sqrt(n)
         A = softmax(G, axis=1)
-        accum += A @ tV
+        scale = 1 / np.sqrt(H)
+        accum += scale * A @ tV
     # print(f'[{mp.current_process().name}] finished, seed used: {seed_int}')
     return accum
 
@@ -94,11 +95,12 @@ def simulate_theoretical(params):
     p = np.random.randn(params['num_runs'], H, s, s)
     Z = np.random.randn(params['num_runs'], H, s)
     y = np.zeros((params['num_runs'], s))
+    scale = 1 / np.sqrt(H)
     for i in range(params['num_runs']):
         for a in range(H):
             logits = p[i, a]
             probs = softmax(logits, axis=1)
-            y[i] += probs.dot(Z[i, a])
+            y[i] += scale * probs.dot(Z[i, a])
     return y
 
 # Set the number of experiments
@@ -119,7 +121,7 @@ if __name__ == '__main__':
             'H': default_H,
             'C': 100,
             'num_runs': 50000,
-            'num_processes': 18,
+            'num_processes': 100,
             'seed': current_experiment_seed
         }
 
@@ -175,6 +177,6 @@ if __name__ == '__main__':
         pd.DataFrame(records_n).to_csv(out_n, index=False)
         pd.DataFrame(records_H).to_csv(out_H, index=False)
 
-        # print(f'Experiment {current_experiment_seed} done')
+        print(f'Experiment {current_experiment_seed} done')
 
-    # print(f'Sampling done in {time.time()-start:.2f} seconds')
+    print(f'Sampling done in {time.time()-start:.2f} seconds')

@@ -14,6 +14,12 @@ SCRIPTS = {
     'plot_score': 'src/plot_score_distribution.py',
     'lowrank': 'src/low_rank_attention.py',
     'plot_lowrank': 'src/plot_low_rank_attention.py',
+    'kl_lowrank': 'src/kl_divergence_low_rank_attention.py',
+    'plot_kl_lowrank': 'src/plot_kl_divergence_low_rank_attention.py',
+    'multihead_relu': 'src/multihead_attention_relu.py',
+    'plot_multihead_relu': 'src/plot_multihead_attention_relu.py',
+    'kl_relu': 'src/kl_divergence_relu.py',
+    'plot_kl_relu': 'src/plot_kl_divergence_relu.py'
 }
 
 def check_files_exist():
@@ -77,14 +83,27 @@ def run_experiment_3():
     run_script(SCRIPTS['lowrank'])
     run_script(SCRIPTS['plot_lowrank'])
 
+    print("\n[Starting Experiment 3b: KL Divergence Calculation for Low-Rank Attention]")
+    run_script(SCRIPTS['kl_lowrank'])
+    run_script(SCRIPTS['plot_kl_lowrank'])
+
+def run_experiment_4():
+    # Runs experiment 4: Multi-head attention with ReLU activation.
+    print("\n[Starting Experiment 4: Multi-Head Attention with ReLU Activation Output Distribution]")
+    run_script(SCRIPTS['multihead_relu'])
+    run_script(SCRIPTS['plot_multihead_relu'])
+
+    print("\n[Starting Experiment 4b: KL Divergence Calculation]")
+    run_script(SCRIPTS['kl_relu'])
+    run_script(SCRIPTS['plot_kl_relu'])
 
 def main():
     parser = argparse.ArgumentParser(description="Run experiments on attention mechanisms.")
     parser.add_argument(
         'experiment',
         nargs='*',  # Allow zero or more arguments
-        choices=['all', '1', '2', '3'],
-        help="Select experiment(s) to run: '1', '2', '3', or 'all'. (default: all)"
+        choices=['all', '1', '2', '3', '4'],
+        help="Select experiment(s) to run: '1', '2', '3', '4', or 'all'. (default: all)"
     )
 
     args = parser.parse_args()
@@ -105,6 +124,9 @@ def main():
 
     if 'all' in experiments_to_run or '3' in experiments_to_run:
         run_experiment_3()
+
+    if 'all' in experiments_to_run or '4' in experiments_to_run:
+        run_experiment_4()
 
     print("\nAll specified tasks have been completed.")
     print("Generated data is stored in the 'data/' directory.")
