@@ -1,8 +1,12 @@
 # infinite-width-attention
 
-This repository provides the source code for the numerical simulations in the paper **"Infinite-Width Limit of a Single Attention Layer: Analysis via Tensor Programs"**. Please refer to the paper for a detailed explanation of the experiments and results.
+This repository provides the source code for the numerical simulations in the paper **"Infinite-Width Limit of a Single Attention Layer: Analysis via Tensor Programs."** Please refer to the paper for a detailed explanation of the experiments and results.
 
 **Paper reference:** Mana Sakai, Ryo Karakida, and Masaaki Imaizumi. (2025). Infinite-Width Limit of a Single Attention Layer: Analysis via Tensor Programs. [arXiv:2506.00846](https://arxiv.org/abs/2506.00846).
+
+## Notes on arXiv Versions
+
+The current main branch corresponds to the code used for the latest version of our paper. For reproducibility, the code corresponding to version 1 of arXiv is preserved in the `arxiv-v1` branch. Please refer to the arxiv-v1 branch and the corresponding README if you are interested in the experiments from the first version of our paper.
 
 ## Implementation
 
@@ -21,19 +25,25 @@ All experiments can be executed via the `run.py` script. The generated data is s
       ```bash
       python run.py 1
       ```
-      This command will generate: `vary_n.pdf` (Figure 1(A)), `vary_H.pdf` (Figure 2(B)), `kl_vary_n.pdf` (Figure 1(B)), and `kl_vary_H.pdf` (not used in the paper) in the `figures/` directory.
+      This command will generate: `vary_n.pdf` (Figure 1(a)), `vary_H.pdf` (Figure 2(b)), `kl_vary_n.pdf` (Figure 1(b)), `kl_vary_H.pdf` (not used in the paper), and `kl_vary_H_inf_head.pdf` (not used in the paper) in the `figures/` directory.
   2.  **Figure 2(A) of the paper:**
       This corresponds to `Experiment 2`.
       ```bash
       python run.py 2
       ```
-      This will generate `score_dist.pdf` (Figure 2(A)).
+      This will generate `score_dist.pdf` (Figure 2(a)).
   3.  **Figure 3 of the paper:**
       This corresponds to `Experiment 3`.
       ```bash
       python run.py 3
       ```
-      This will generate `lowrank.pdf` (Figure 3).
+      This will generate `lowrank.pdf` (Figure 3(a)) and `kl_lowrank.pdf` (Figure 3(b)).
+  4.  **Figure 5 of the paper:**
+      This corresponds to `Experiment 4`.
+      ```bash
+      python run.py 4
+      ```
+      This will generate `vary_n_relu.pdf` (Figure 5(a)) and `kl_vary_n_relu.pdf` (Figure 5(b)).
 
 ## Requirements
 
